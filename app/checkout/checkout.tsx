@@ -3,35 +3,43 @@
 import { useState } from "react";
 import { Loader2, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from "@/components/ui/field";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { EmailFormSchema } from "@/schema/schema";
+import { type EmailFormSchemaType } from "@/schema/schema";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const PRODUCT = {
   name: "Early Pro Access",
-  price: 10_000, // naira
+  price: 10_000,
 };
 
 export default function PresaleCheckoutPage() {
-  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-
   const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!;
 
-  const handlePayment = async () => {
-    try {
-      setError("");
-      setLoading(true);
+  const form = useForm<EmailFormSchemaType>({
+    resolver: zodResolver(EmailFormSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
 
-      if (!email) {
-        setError("Please enter your email");
-        return;
-      }
+  const onSubmit = async (values: EmailFormSchemaType) => {
+    try {
+      setLoading(true);
 
       // 1️⃣ Initialize transaction
       const res = await fetch("/api/presale/initialize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: values.email }),
       });
 
       const data = await res.json();
@@ -40,25 +48,22 @@ export default function PresaleCheckoutPage() {
         throw new Error("Failed to initialize payment");
       }
 
-      const { reference } = data;
-
       // 2️⃣ Paystack popup
       const PaystackPop = (await import("@paystack/inline-js")).default;
       const paystack = new PaystackPop();
 
       paystack.newTransaction({
         key: publicKey,
-        email,
+        email: values.email,
         amount: PRODUCT.price * 100,
-        reference,
+        reference: data.reference,
 
         onSuccess: () => {
           toast.success("Payment received. Finalizing…");
-          // webhook will confirm + unlock presale
         },
 
         onCancel: () => {
-          setError("Payment cancelled");
+          toast.error("Payment cancelled");
         },
       });
     } catch (err) {
@@ -80,50 +85,58 @@ export default function PresaleCheckoutPage() {
           ₦{PRODUCT.price.toLocaleString()} · one-time payment
         </p>
 
-        {/* Email field */}
-        <div className="space-y-2">
-          <label className="text-sm text-brand-white/70">
-            Email address
-          </label>
-          <input
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="
-              w-full rounded-lg bg-brand-black
-              border border-brand-white/20
-              px-4 py-3 text-brand-white
-              outline-none focus:border-brand-white
-            "
-          />
-        </div>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <FieldGroup>
+            <Controller
+              name="email"
+              control={form.control}
+              render={({ field, fieldState }) => (
+                <Field data-invalid={fieldState.invalid}>
+                  <FieldLabel htmlFor={field.name}>
+                    Email address
+                  </FieldLabel>
 
-        {error && (
-          <p className="text-sm text-brand-orange">{error}</p>
-        )}
+                  <input
+                    {...field}
+                    id={field.name}
+                    type="email"
+                    placeholder="you@example.com"
+                    aria-invalid={fieldState.invalid}
+                    className="
+                      w-full rounded-lg bg-brand-black
+                      border border-brand-white/20
+                      px-4 py-3 text-brand-white
+                      outline-none focus:border-brand-white
+                    "
+                  />
 
-        {/* CTA */}
-        <Button
-          onClick={handlePayment}
-          disabled={loading}
-          className="h-12 w-full"
-        >
-          {loading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Processing…
-            </>
-          ) : (
-            <>
-              <Lock className="mr-2 h-4 w-4" />
-              Pay ₦{PRODUCT.price.toLocaleString()}
-            </>
-          )}
-        </Button>
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="h-12 w-full mt-4"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Processing…
+                </>
+              ) : (
+                <>
+                  <Lock className="mr-2 h-4 w-4" />
+                  Pay ₦{PRODUCT.price.toLocaleString()}
+                </>
+              )}
+            </Button>
+          </FieldGroup>
+        </form>
       </div>
     </div>
   );
 }
-
-
