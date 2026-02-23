@@ -40,29 +40,38 @@ export async function finalizePresalePayment(
         claimStatus: "UNCLAIMED",
       })
       .onConflictDoNothing({
-        // protects against:
-        // - webhook replay
-        // - same email purchase
-        target: [presale.paymentReference, presale.email],
+        target: presale.paymentReference,
       })
       .returning({ id: presale.id });
 
-    // Nothing inserted → already purchased
+    // 🔁 Webhook retry → already handled
     if (inserted.length === 0) {
       return { ok: true, alreadyProcessed: true };
     }
 
-    // First successful insert → send confirmation email
+    // 📧 Confirmation email (non-fatal)
     try {
-      await sendPresaleConfirmationEmail({ email, reference });
+      await sendPresaleConfirmationEmail({
+        email,
+        reference,
+      });
     } catch (err) {
-      // email failure must NOT break payment
-      console.error("PRESALE_EMAIL_FAILED", err);
+      console.error("PRESALE_EMAIL_FAILED", { email, reference, err });
     }
 
     return { ok: true, alreadyProcessed: false };
-  } catch (err) {
-    console.error("FINALIZE_PRESALE_ERROR", err);
+  } catch (err: any) {
+    // 🚫 Email already purchased (unique email constraint)
+    if (err?.code === "23505") {
+      return { ok: true, alreadyProcessed: true };
+    }
+
+    console.error("FINALIZE_PRESALE_ERROR", {
+      reference,
+      email,
+      err,
+    });
+
     return { ok: false, error: "Failed to finalize presale payment" };
   }
 }
