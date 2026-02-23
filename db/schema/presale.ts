@@ -17,7 +17,7 @@ export const presale = pgTable(
   {
     id: text("id").primaryKey(), // cuid / uuid
 
-    email: text("email").notNull(),
+    email: text("email").notNull().unique(),
 
     // payment
     paymentReference: text("payment_reference").notNull().unique(),

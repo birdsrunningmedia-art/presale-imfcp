@@ -1,7 +1,6 @@
 import crypto from "crypto";
 import { headers } from "next/headers";
 import { finalizePresalePayment } from "@/lib/payment/finalize-payment";
-import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   const body = await req.text();
@@ -13,20 +12,20 @@ export async function POST(req: Request) {
     .digest("hex");
 
   if (hash !== signature) {
-    return NextResponse.json({ error: "Invalid Signature" }, { status: 401 });
+    return new Response("Invalid signature", { status: 401 });
   }
 
   const event = JSON.parse(body);
 
   if (event.event !== "charge.success") {
-    return NextResponse.json({ message: "Ignored" }, { status: 200 });
+    return new Response("Ignored", { status: 200 });
   }
 
   const data = event.data;
-
   const email = data.customer?.email;
+
   if (!email) {
-    return NextResponse.json({ error: "Missing email" }, { status: 400 });
+    return new Response("Missing email", { status: 400 });
   }
 
   const result = await finalizePresalePayment({

@@ -11,8 +11,7 @@ import {
 } from "@/components/ui/field";
 import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { EmailFormSchema } from "@/schema/schema";
-import { type EmailFormSchemaType } from "@/schema/schema";
+import { EmailFormSchema, type EmailFormSchemaType } from "@/schema/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const PRODUCT = {
@@ -26,16 +25,16 @@ export default function PresaleCheckoutPage() {
 
   const form = useForm<EmailFormSchemaType>({
     resolver: zodResolver(EmailFormSchema),
-    defaultValues: {
-      email: "",
-    },
+    defaultValues: { email: "" },
   });
 
   const onSubmit = async (values: EmailFormSchemaType) => {
+    if (loading) return;
+
     try {
       setLoading(true);
 
-      // 1️⃣ Initialize transaction
+      // 1️⃣ Initialize transaction (server validates email uniqueness)
       const res = await fetch("/api/presale/initialize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -44,11 +43,17 @@ export default function PresaleCheckoutPage() {
 
       const data = await res.json();
 
-      if (!res.ok || !data.reference) {
-        throw new Error("Failed to initialize payment");
+      // 2️⃣ Email already used
+      if (res.status === 409 && data.error === "ALREADY_PURCHASED") {
+        toast.error("This email has already purchased Early Pro Access.");
+        return;
       }
 
-      // 2️⃣ Paystack popup
+      if (!res.ok || !data.reference) {
+        throw new Error(data?.error ?? "Initialization failed");
+      }
+
+      // 3️⃣ Open Paystack
       const PaystackPop = (await import("@paystack/inline-js")).default;
       const paystack = new PaystackPop();
 
@@ -59,16 +64,18 @@ export default function PresaleCheckoutPage() {
         reference: data.reference,
 
         onSuccess: () => {
-          toast.success("Payment received. Finalizing…");
+          toast.success(
+            "Payment received! Check your email for confirmation."
+          );
         },
 
         onCancel: () => {
-          toast.error("Payment cancelled");
+          toast.message("Payment cancelled");
         },
       });
     } catch (err) {
-      console.error(err);
-      toast.error("Payment could not be started");
+      console.error("PRESALE_INIT_ERROR", err);
+      toast.error("Unable to start payment. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -102,11 +109,13 @@ export default function PresaleCheckoutPage() {
                     type="email"
                     placeholder="you@example.com"
                     aria-invalid={fieldState.invalid}
+                    disabled={loading}
                     className="
                       w-full rounded-lg bg-brand-black
                       border border-brand-white/20
                       px-4 py-3 text-brand-white
                       outline-none focus:border-brand-white
+                      disabled:opacity-60
                     "
                   />
 

@@ -20,7 +20,6 @@ export async function finalizePresalePayment(
   const { reference, email, amount, currency } = input;
 
   try {
-    // 1️⃣ Insert presale purchase (idempotent)
     const inserted = await db
       .insert(presale)
       .values({
@@ -28,7 +27,7 @@ export async function finalizePresalePayment(
         email,
         paymentReference: reference,
         provider: "paystack",
-        amount: (amount / 100).toString(), // store major unit
+        amount: (amount / 100).toString(),
         currency,
 
         plan: "early-pro",
@@ -41,38 +40,29 @@ export async function finalizePresalePayment(
         claimStatus: "UNCLAIMED",
       })
       .onConflictDoNothing({
-        target: presale.paymentReference,
+        // protects against:
+        // - webhook replay
+        // - same email purchase
+        target: [presale.paymentReference, presale.email],
       })
       .returning({ id: presale.id });
 
-    // 2️⃣ If already processed → DO NOT resend email
+    // Nothing inserted → already purchased
     if (inserted.length === 0) {
       return { ok: true, alreadyProcessed: true };
     }
 
-    // 3️⃣ Send confirmation email (fire-and-forget safe)
+    // First successful insert → send confirmation email
     try {
-      await sendPresaleConfirmationEmail({
-        email,
-        reference,
-      });
-    } catch (emailErr) {
-      // Email failure should NOT fail payment
-      console.error("PRESALE_EMAIL_FAILED", {
-        email,
-        reference,
-        emailErr,
-      });
+      await sendPresaleConfirmationEmail({ email, reference });
+    } catch (err) {
+      // email failure must NOT break payment
+      console.error("PRESALE_EMAIL_FAILED", err);
     }
 
     return { ok: true, alreadyProcessed: false };
   } catch (err) {
-    console.error("FINALIZE_PRESALE_ERROR", {
-      reference,
-      email,
-      err,
-    });
-
+    console.error("FINALIZE_PRESALE_ERROR", err);
     return { ok: false, error: "Failed to finalize presale payment" };
   }
 }
