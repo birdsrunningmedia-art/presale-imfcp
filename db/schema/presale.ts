@@ -12,7 +12,7 @@ export const presaleClaimStatusEnum = pgEnum("presale_claim_status", [
   "CLAIMED",
 ]);
 
-export const presale = pgTable(
+export const presaleTable = pgTable(
   "presale",
   {
     id: text("id").primaryKey(), // cuid / uuid

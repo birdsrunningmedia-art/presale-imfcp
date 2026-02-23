@@ -44,7 +44,10 @@ export default function PresaleCheckoutPage() {
       const data = await res.json();
 
       // 2️⃣ Email already used
-      if (res.status === 409 && data.error === "ALREADY_PURCHASED") {
+      if (data.error ) {
+        console.log(data.error)
+      }
+      if (res.status === 409 && data.error === "This email already has presale access") {
         toast.error("This email has already purchased Early Pro Access.");
         return;
       }

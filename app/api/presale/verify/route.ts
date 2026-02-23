@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { presale } from "@/db/schema";
+import { presaleTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function GET(req: Request) {
@@ -14,8 +14,8 @@ export async function GET(req: Request) {
     );
   }
 
-  const record = await db.query.presale.findFirst({
-    where: eq(presale.paymentReference, reference),
+  const record = await db.query.presaleTable.findFirst({
+    where: eq(presaleTable.paymentReference, reference),
   });
 
   if (!record) {

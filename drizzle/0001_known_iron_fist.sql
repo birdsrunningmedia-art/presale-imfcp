@@ -1,1 +1,0 @@
-ALTER TABLE "presale" ADD CONSTRAINT "presale_email_unique" UNIQUE("email");

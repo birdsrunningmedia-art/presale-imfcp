@@ -11,6 +11,7 @@ CREATE TABLE "presale" (
 	"claim_status" "presale_claim_status" DEFAULT 'UNCLAIMED' NOT NULL,
 	"claimed_at" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "presale_email_unique" UNIQUE("email"),
 	CONSTRAINT "presale_payment_reference_unique" UNIQUE("payment_reference")
 );
 --> statement-breakpoint

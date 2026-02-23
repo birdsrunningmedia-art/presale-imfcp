@@ -1,5 +1,5 @@
 {
-  "id": "d5fcdb2e-60c6-4cb1-9f6d-d25d4492f720",
+  "id": "e4403f93-43a6-48f4-bed9-1ee8f2d02e24",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -115,6 +115,13 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
+        "presale_email_unique": {
+          "name": "presale_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        },
         "presale_payment_reference_unique": {
           "name": "presale_payment_reference_unique",
           "nullsNotDistinct": false,

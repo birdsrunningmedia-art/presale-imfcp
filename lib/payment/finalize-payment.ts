@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import { db } from "@/db";
-import { presale } from "@/db/schema";
+import { presaleTable } from "@/db/schema";
 import { sendPresaleConfirmationEmail } from "@/lib/email/send-presale-confirmation";
 
 type FinalizePresaleInput = {
@@ -21,7 +21,7 @@ export async function finalizePresalePayment(
 
   try {
     const inserted = await db
-      .insert(presale)
+      .insert(presaleTable)
       .values({
         id: crypto.randomUUID(),
         email,
@@ -40,9 +40,9 @@ export async function finalizePresalePayment(
         claimStatus: "UNCLAIMED",
       })
       .onConflictDoNothing({
-        target: presale.paymentReference,
+        target: presaleTable.paymentReference,
       })
-      .returning({ id: presale.id });
+      .returning({ id: presaleTable.id });
 
     // 🔁 Webhook retry → already handled
     if (inserted.length === 0) {
