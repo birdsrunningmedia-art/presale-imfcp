@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { motion, cubicBezier } from "framer-motion";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const collections = [
@@ -10,9 +11,40 @@ const collections = [
   { title: "Cute girl", img: "/images/cute-girl.jpg" },
   { title: "Korty Couch", img: "/images/korty-couch.jpg" },
   { title: "Korty", img: "/images/korty.jpg" },
-
 ];
 
+const ease = cubicBezier(0.22, 1, 0.36, 1);
+
+const container = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.12,
+    },
+  },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 18 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.7,
+      ease,
+    },
+  },
+};
+
+const card = {
+  hidden: { opacity: 0, y: 20, scale: 0.98 },
+  show: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.7, ease },
+  },
+};
 
 export default function Collections() {
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -24,10 +56,19 @@ export default function Collections() {
   };
 
   return (
-    <section className="py-28">
+    <motion.section
+      className="py-28"
+      variants={container}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: "-100px" }}
+    >
       <div className="mx-auto max-w-7xl px-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <motion.div
+          variants={fadeUp}
+          className="flex items-center justify-between mb-8"
+        >
           <div>
             <h2 className="text-3xl font-bold text-white">
               Explore the Universe
@@ -38,7 +79,7 @@ export default function Collections() {
           </div>
 
           {/* Controls */}
-          <div className="flex gap-2">
+          <motion.div variants={fadeUp} className="flex gap-2">
             <button
               onClick={() => scroll("left")}
               className="flex h-10 w-10 items-center justify-center
@@ -57,11 +98,12 @@ export default function Collections() {
             >
               <ChevronRight size={18} />
             </button>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Frame */}
-        <div
+        <motion.div
+          variants={fadeUp}
           className="relative rounded-[28px] p-[1px]
                      bg-gradient-to-br from-brand-orange to-brand-white
                      shadow-[0_0_70px_rgba(244,104,61,0.35)]"
@@ -75,8 +117,11 @@ export default function Collections() {
                        scrollbar-hide"
           >
             {collections.map((c) => (
-              <div
+              <motion.div
                 key={c.title}
+                variants={card}
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.3, ease }}
                 className="group relative min-w-[280px] h-[360px]
                            overflow-hidden rounded-2xl
                            border border-brand-white/20"
@@ -85,15 +130,11 @@ export default function Collections() {
                 <img
                   src={c.img}
                   alt={c.title}
-                  className="h-full w-full object-cover
-                             transition duration-500
-                             group-hover:scale-105"
+                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                 />
 
                 {/* Overlay */}
-                <div className="absolute inset-0
-                                bg-gradient-to-t
-                                from-black/70 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
                 {/* Title */}
                 <div className="absolute bottom-5 left-5 right-5">
@@ -104,11 +145,11 @@ export default function Collections() {
                     Premium image collection
                   </span>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
-    </section>
+    </motion.section>
   );
 }
