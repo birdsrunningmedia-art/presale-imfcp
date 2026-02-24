@@ -1,10 +1,24 @@
 import Countdown from "../Countdown";
+import LightPillar from "../liquid-pillar/liquid-pillar";
 
 export default function Hero() {
   return (
     <section className="relative pt-32 pb-24">
+      {/* <LightPillar
+        topColor="#f4683d"
+        bottomColor="#eae8e8"
+        intensity={1}
+        rotationSpeed={0.3}
+        glowAmount={0.002}
+        pillarWidth={3}
+        pillarHeight={0.4}
+        noiseIntensity={0.5}
+        pillarRotation={25}
+        interactive={false}
+        mixBlendMode="screen"
+        quality="high"
+      /> */}
       <div className="mx-auto max-w-7xl px-6 grid gap-16 lg:grid-cols-2 items-center">
-        
         {/* Copy */}
         <div>
           <span className="inline-block mb-4 rounded-full bg-brand-orange/10 px-4 py-1 text-xs text-brand-orange">
@@ -12,7 +26,8 @@ export default function Hero() {
           </span>
 
           <h1 className="text-4xl font-bold leading-tight md:text-6xl">
-            Unlock Unlimited <span className="text-brand-orange">AI Vision</span>.
+            Unlock Unlimited{" "}
+            <span className="text-brand-orange">AI Vision</span>.
             <br /> Forever.
           </h1>
 
