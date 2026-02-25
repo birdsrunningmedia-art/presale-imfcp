@@ -38,7 +38,15 @@ const frame = {
   show: { opacity: 1, scale: 1, transition: { duration: 0.8, ease } },
 };
 
-export default function Pricing() {
+export default function Pricing({
+  pricing,
+}: {
+  pricing: {
+    symbol: string;
+    amount: number;
+    currency: string;
+  };
+}) {
   const router = useRouter();
 
   return (
@@ -89,8 +97,13 @@ export default function Pricing() {
 
             {/* Price */}
             <motion.div variants={fadeUp} className="flex items-end gap-2 mb-4">
-              <p className="text-5xl font-extrabold text-white">$8</p>
-              <span className="text-sm text-brand-white/70 mb-1">USD</span>
+              <p className="text-5xl font-extrabold text-white">
+                {pricing.symbol}
+                {pricing.amount}
+              </p>
+              <span className="text-sm text-brand-white/70 mb-1">
+                {pricing.currency}
+              </span>
             </motion.div>
 
             {/* Description */}

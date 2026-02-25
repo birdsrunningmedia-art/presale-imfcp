@@ -25,7 +25,15 @@ const item = {
   },
 };
 
-export default function Hero() {
+export default function Hero({
+  pricing,
+}: {
+  pricing: {
+    symbol: string;
+    amount: number;
+    currency: string;
+  };
+}) {
   return (
     <section className="relative pt-32 pb-24 overflow-hidden">
       <div className="mx-auto max-w-7xl px-6 grid gap-16 lg:grid-cols-2 items-center">
@@ -35,15 +43,16 @@ export default function Hero() {
             variants={item}
             className="inline-block mb-4 rounded-full bg-brand-orange/10 px-4 py-1 text-xs text-brand-orange"
           >
-            Limited Presale Live
+            IMFC presale is live
           </motion.span>
 
           <motion.h1
             variants={item}
             className="text-4xl font-bold leading-tight md:text-6xl"
           >
-            Unlock Unlimited{" "}
-            <span className="text-brand-orange">AI Vision</span>.
+            Unlock Unlimited Creativity.{" "}
+            <span className="text-brand-orange">500 images. Just for you.</span>
+            .
             <br /> Forever.
           </motion.h1>
 
@@ -64,7 +73,8 @@ export default function Hero() {
               href="#pricing"
               className="rounded-xl bg-brand-orange px-8 py-4 text-sm font-semibold hover:bg-brand-orange/70 transition"
             >
-              Claim Lifetime Access – $99
+              Claim Lifetime Access – {pricing.symbol}
+              {pricing.amount}
             </a>
             <span className="text-xs text-brand-white/50">
               Secure one-time payment

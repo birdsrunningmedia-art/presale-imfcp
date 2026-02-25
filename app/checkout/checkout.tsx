@@ -34,7 +34,15 @@ const fadeUp = {
   show: { opacity: 1, y: 0, transition: { duration: 0.7, ease } },
 };
 
-export default function PresaleCheckoutPage() {
+export default function PresaleCheckoutPage({
+  pricing,
+}: {
+  pricing: {
+    symbol: string;
+    amount: number;
+    currency: string;
+  };
+}) {
   const [loading, setLoading] = useState(false);
   const publicKey = process.env.NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY!;
   const form = useForm<EmailFormSchemaType>({
@@ -55,12 +63,16 @@ export default function PresaleCheckoutPage() {
 
       const data = await res.json();
 
-      if (res.status === 409 && data.error === "This email already has presale access") {
+      if (
+        res.status === 409 &&
+        data.error === "This email already has presale access"
+      ) {
         toast.error("This email has already purchased Early Pro Access.");
         return;
       }
 
-      if (!res.ok || !data.reference) throw new Error(data?.error ?? "Initialization failed");
+      if (!res.ok || !data.reference)
+        throw new Error(data?.error ?? "Initialization failed");
 
       const PaystackPop = (await import("@paystack/inline-js")).default;
       const paystack = new PaystackPop();
@@ -70,7 +82,8 @@ export default function PresaleCheckoutPage() {
         email: values.email,
         amount: PRODUCT.price * 100,
         reference: data.reference,
-        onSuccess: () => toast.success("Payment received! Check your email for confirmation."),
+        onSuccess: () =>
+          toast.success("Payment received! Check your email for confirmation."),
         onCancel: () => toast.message("Payment cancelled"),
       });
     } catch (err) {
@@ -104,11 +117,9 @@ export default function PresaleCheckoutPage() {
         </motion.h1>
 
         {/* Subtext */}
-        <motion.p
-          variants={fadeUp}
-          className="text-center text-white/60"
-        >
-          ₦{PRODUCT.price.toLocaleString()} · one-time payment
+        <motion.p variants={fadeUp} className="text-center text-white/60">
+          {pricing.symbol}
+          {pricing.amount} · one-time payment
         </motion.p>
 
         {/* Guiding text */}
@@ -120,7 +131,11 @@ export default function PresaleCheckoutPage() {
         </motion.p>
 
         {/* Form */}
-        <motion.form variants={fadeUp} onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <motion.form
+          variants={fadeUp}
+          onSubmit={form.handleSubmit(onSubmit)}
+          className="space-y-4"
+        >
           <FieldGroup>
             <Controller
               name="email"
@@ -142,7 +157,9 @@ export default function PresaleCheckoutPage() {
                       disabled:opacity-60
                     "
                   />
-                  {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+                  {fieldState.invalid && (
+                    <FieldError errors={[fieldState.error]} />
+                  )}
                 </Field>
               )}
             />

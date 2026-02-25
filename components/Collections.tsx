@@ -71,10 +71,11 @@ export default function Collections() {
         >
           <div>
             <h2 className="text-3xl font-bold text-white">
-              Explore the Universe
+              Explore a universe of precision-crafted visuals.
             </h2>
             <p className="text-sm text-brand-white/70 mt-1">
-              Curated collections built for modern creators
+              Our unique packages deliver the hyper-realistic imagery you need
+              to bring any vision to life instantly.
             </p>
           </div>
 

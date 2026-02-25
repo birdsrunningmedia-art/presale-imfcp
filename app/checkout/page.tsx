@@ -1,5 +1,5 @@
-import PresaleCheckoutPage from "./checkout";
+import CheckOutSection from "./CheckoutSection";
 
 export default async function page() {
-  return <PresaleCheckoutPage />;
+  return <CheckOutSection />;
 }
