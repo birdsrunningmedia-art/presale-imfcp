@@ -3,6 +3,7 @@
 import { motion, cubicBezier } from "framer-motion";
 import Countdown from "../Countdown";
 import LightPillar from "../liquid-pillar/liquid-pillar";
+import { formatNumber } from "@/utils/helpers";
 
 const container = {
   hidden: {},
@@ -50,9 +51,8 @@ export default function Hero({
             variants={item}
             className="text-4xl font-bold leading-tight md:text-6xl"
           >
-            Unlock Unlimited Creativity.{" "}
-            <span className="text-brand-orange">500 images. Just for you.</span>
-            .
+            Unlock Unlimited Creativity. <br />
+            <span className="text-brand-orange">500 images just for you.</span>
             <br /> Forever.
           </motion.h1>
 
@@ -74,7 +74,7 @@ export default function Hero({
               className="rounded-xl bg-brand-orange px-8 py-4 text-sm font-semibold hover:bg-brand-orange/70 transition"
             >
               Claim Lifetime Access – {pricing.symbol}
-              {pricing.amount}
+              {formatNumber(pricing.amount)}
             </a>
             <span className="text-xs text-brand-white/50">
               Secure one-time payment

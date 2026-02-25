@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { EmailFormSchema, type EmailFormSchemaType } from "@/schema/schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { motion, cubicBezier } from "framer-motion";
+import { formatNumber } from "@/utils/helpers";
 
 const PRODUCT = {
   name: "Early Pro Access",
@@ -119,7 +120,7 @@ export default function PresaleCheckoutPage({
         {/* Subtext */}
         <motion.p variants={fadeUp} className="text-center text-white/60">
           {pricing.symbol}
-          {pricing.amount} · one-time payment
+          {formatNumber(pricing.amount)} · one-time payment
         </motion.p>
 
         {/* Guiding text */}
